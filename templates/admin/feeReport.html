@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fee Report</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        h1 {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fee Report</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Student ID</th>
+                <th>Student Name</th>
+                <th>Fee ID</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Due Date</th>
+                <th>Payment Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fee in fee_report %}
+            <tr>
+                <td>{{ fee.sid }}</td>
+                <td>{{ fee.name }}</td>
+                <td>{{ fee.feeid if fee.feeid else 'N/A' }}</td>
+                <td>{{ fee.amount if fee.amount else 'N/A' }}</td>
+                <td>{{ fee.status if fee.status else 'N/A' }}</td>
+                <td>{{ fee.due_date if fee.due_date else 'N/A' }}</td>
+                <td>{{ fee.payment_date if fee.payment_date else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

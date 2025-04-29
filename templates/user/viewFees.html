@@ -1,0 +1,35 @@
+<!-- viewFees.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Fees</title>
+</head>
+<body>
+    <h1>My Fee Details</h1>
+
+    <a href="{{ url_for('studentDashboard') }}">Back to Dashboard</a>
+    <br><br>
+
+    {% if fees %}
+    <table border="1" cellpadding="10">
+        <tr>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Due Date</th>
+            <th>Assigned On</th>
+        </tr>
+        {% for fee in fees %}
+        <tr>
+            <td>₹ {{ fee.amount }}</td>
+            <td>{{ fee.status }}</td>
+            <td>{{ fee.due_date }}</td>
+            <td>{{ fee.created_at.strftime('%d-%m-%Y') if fee.created_at else 'N/A' }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No fee records found.</p>
+    {% endif %}
+</body>
+</html>

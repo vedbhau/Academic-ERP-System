@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Teacher Subjects - College ERP System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .header {
+            background-color: #1a73e8;
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .logo a {
+            color: white;
+            text-decoration: none;
+        }
+        nav a {
+            color: white;
+            margin-left: 1.5rem;
+            text-decoration: none;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .teacher-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        .teacher-section h1 {
+            color: #1a73e8;
+            margin-bottom: 1.5rem;
+        }
+        .teacher-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 1rem;
+            transition: transform 0.2s;
+        }
+        .teacher-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .teacher-info {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .teacher-info h3 {
+            color: #1a73e8;
+            margin-bottom: 0.5rem;
+        }
+        .teacher-info p {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        .subjects-list {
+            margin-top: 1rem;
+            padding-left: 1rem;
+        }
+        .subjects-list li {
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: #1a73e8;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .flash-message {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .flash-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+        .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .teacher-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+        .no-teachers {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        .no-subjects {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <a href="{{ url_for('adminDashboard') }}">College ERP System</a>
+            </div>
+            <nav>
+                <a href="{{ url_for('adminDashboard') }}">Dashboard</a>
+                <a href="{{ url_for('adminLogout') }}">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="teacher-section">
+            <h1>Manage Teacher Subjects</h1>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% if teachers %}
+                <div class="teacher-grid">
+                    {% for teacher in teachers %}
+                    <div class="teacher-card">
+                        <div class="teacher-info">
+                            <h3>{{ teacher.name }}</h3>
+                            <p><strong>Email:</strong> {{ teacher.email }}</p>
+                            <p><strong>Branch:</strong> {{ teacher.branch }}</p>
+                        </div>
+                        
+                        <div class="subjects-section">
+                            <h4>Current Subjects:</h4>
+                            {% if teacher.subjects %}
+                                <ul class="subjects-list">
+                                    {% for subject in teacher.subjects %}
+                                    <li>
+                                        <span>{{ subject.subject_name }} ({{ subject.course_name }}, Semester {{ subject.semester }})</span>
+                                        <form method="POST" action="{{ url_for('adminRemoveSubject', tid=teacher.tid, subid=subject.subid) }}" style="display: inline;">
+                                            <button type="submit" class="btn btn-danger">Remove</button>
+                                        </form>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="no-subjects">No subjects assigned yet.</p>
+                            {% endif %}
+                        </div>
+
+                        <h4>Add New Subject:</h4>
+                        <form method="POST" action="{{ url_for('adminAddSubject', tid=teacher.tid) }}">
+                            <div class="form-group">
+                                <label for="course">Select Course:</label>
+                                <select name="course" id="course_{{ teacher.tid }}" required onchange="updateSubjects(this.value, {{ teacher.tid }})">
+                                    <option value="">Select a course</option>
+                                    {% for course in courses %}
+                                        <option value="{{ course.cid }}">{{ course.course_name }} ({{ course.branch }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="subject">Select Subject:</label>
+                                <select name="subject" id="subject_{{ teacher.tid }}" required>
+                                    <option value="">Select a subject</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Subject</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-teachers">
+                    <p>No teachers found in the system.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function updateSubjects(courseId, teacherId) {
+            const subjectSelect = document.getElementById(`subject_${teacherId}`);
+            subjectSelect.innerHTML = '<option value="">Select a subject</option>';
+            
+            if (courseId) {
+                fetch(`/get_subjects/${courseId}`)
+                    .then(response => response.json())
+                    .then(subjects => {
+                        subjects.forEach(subject => {
+                            const option = document.createElement('option');
+                            option.value = subject.subid;
+                            option.textContent = `${subject.subject_name} (Semester ${subject.semester})`;
+                            subjectSelect.appendChild(option);
+                        });
+                    });
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Attendance - College ERP System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .header {
+            background-color: #1a73e8;
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .logo a {
+            color: white;
+            text-decoration: none;
+        }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .attendance-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .attendance-form h2 {
+            color: #1a73e8;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .form-group select {
+            background-color: white;
+            cursor: pointer;
+        }
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: #1a73e8;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .flash-message {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <a href="{{ url_for('teacherDashboard') }}">College ERP System</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="attendance-form">
+            <h2>Add Attendance</h2>
+            
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-message">
+                        {{ messages[0] }}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <div class="form-group">
+                    <label for="course">Select Course</label>
+                    <select id="course" name="course" required onchange="updateSubjects()">
+                        <option value="">Select a course</option>
+                        {% for course in courses %}
+                            <option value="{{ course.cid }}">{{ course.course_name }} ({{ course.branch }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="subject">Select Subject</label>
+                    <select id="subject" name="subject" required>
+                        <option value="">Select a subject</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Attendance Status</label>
+                    <select id="status" name="status" required>
+                        <option value="present">Present</option>
+                        <option value="absent">Absent</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="student">Select Student</label>
+                    <select id="student" name="student" required>
+                        <option value="">Select a student</option>
+                        {% for student in students %}
+                            <option value="{{ student.sid }}">{{ student.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">Add Attendance</button>
+                    <a href="{{ url_for('teacherDashboard') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function updateSubjects() {
+            const courseSelect = document.getElementById('course');
+            const subjectSelect = document.getElementById('subject');
+            const courseId = courseSelect.value;
+            
+            // Clear existing options
+            subjectSelect.innerHTML = '<option value="">Select a subject</option>';
+            
+            if (courseId) {
+                // Show loading state
+                subjectSelect.disabled = true;
+                subjectSelect.innerHTML = '<option value="">Loading subjects...</option>';
+                
+                fetch(`/get_subjects/${courseId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(subjects => {
+                        // Clear loading state
+                        subjectSelect.innerHTML = '<option value="">Select a subject</option>';
+                        
+                        if (subjects && subjects.length > 0) {
+                            subjects.forEach(subject => {
+                                const option = document.createElement('option');
+                                option.value = subject.subid;
+                                option.textContent = `${subject.subject_name} (Semester ${subject.semester})`;
+                                subjectSelect.appendChild(option);
+                            });
+                        } else {
+                            subjectSelect.innerHTML = '<option value="">No subjects found</option>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching subjects:', error);
+                        subjectSelect.innerHTML = '<option value="">Error loading subjects</option>';
+                    })
+                    .finally(() => {
+                        subjectSelect.disabled = false;
+                    });
+            }
+        }
+    </script>
+</body>
+</html>

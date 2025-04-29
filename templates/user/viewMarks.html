@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Marks</title>
+</head>
+<body>
+    <h2>Your Marks</h2>
+    <table border="1">
+        <tr>
+            <th>Subject</th>
+            <th>Marks</th>
+        </tr>
+        {% for row in marks %}
+        <tr>
+            <td>{{ row.subject }}</td>
+            <td>{{ row.marks }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <a href="{{ url_for('studentDashboard') }}">Back to Dashboard</a>
+</body>
+</html>

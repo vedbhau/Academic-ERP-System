@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #c2d5e8, #f0dfd2);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            width: 100%;
+            background-image: linear-gradient(to right, #24C6DC, #514A9D);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .logo a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.6rem;
+            letter-spacing: 1px;
+        }
+
+        .dashboard-container {
+            max-width: 1100px;
+            width: 100%;
+            margin: 30px auto;
+            padding: 40px;
+            background: linear-gradient(to bottom right, #f6faff, #eef3fc);
+            border-radius: 20px;
+            box-shadow: 0 12px 28px rgba(36, 198, 220, 0.15);
+            backdrop-filter: blur(6px);
+            border: 1px solid #dce7f3;
+        }
+
+        .section-box {
+            background: linear-gradient(to bottom right, #f1f8ff, #e0e9f7); /* Lighter gradient */
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 6px 16px rgba(81, 74, 157, 0.05); /* Lighter shadow */
+            margin-bottom: 2rem;
+            border-left: 6px solid #348AC7; /* Use a matching blue shade */
+        }
+
+        h2, h3 {
+            color: #1a1a1a;
+        }
+
+        .admin-info p {
+            margin: 10px 0;
+            padding: 10px 14px;
+            background-color: #f7f9fa;
+            border-left: 4px solid #24C6DC;
+            border-radius: 8px;
+        }
+
+        .btn-grad {
+            background-image: linear-gradient(to right, #7474BF 0%, #348AC7 51%, #7474BF 100%);
+            margin: 10px;
+            padding: 15px 45px;
+            text-align: center;
+            text-transform: uppercase;
+            transition: 0.5s;
+            background-size: 200% auto;
+            color: white;
+            box-shadow: 0 0 20px #eee;
+            border-radius: 10px;
+            display: block;
+            text-decoration: none; /* Removes the underline */
+        }
+
+        .btn-grad:hover {
+            background-position: right center;
+            color: #fff;
+            text-decoration: none; /* Ensure no underline on hover */
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 15px;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-buttons,
+        .user-actions,
+        .course-actions {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .user-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .user-card {
+            background: linear-gradient(to bottom right, #e6f3ff, #d1e7f5); /* Lighter gradient */
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Lighter shadow */
+        }
+
+        .user-card h4 {
+            color: #1a73e8;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 700px) {
+            .dashboard-container {
+                padding: 20px;
+            }
+
+            .btn-grad, .btn-danger {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <a href="{{ url_for('homepage') }}">College ERP System</a>
+            </div>
+            <div class="action-buttons">
+                <a href="{{ url_for('adminLogout') }}" class="btn-danger">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="welcome-section section-box">
+            <h2>Welcome, {{ admin.name }}</h2>
+            <p><strong>Email:</strong> {{ admin.email }}</p>
+        </div>
+
+        <div class="user-management-section section-box">
+            <h3>User Management</h3>
+            <div class="user-actions">
+                <a href="{{ url_for('addStudent') }}" class="btn-grad">Add New Student</a>
+                <a href="{{ url_for('manageTeacherSubjects') }}" class="btn-grad">Manage Teachers</a>
+            </div>
+        </div>
+        
+        <div class="course-management-section section-box">
+            <h3>Fee Management</h3>
+            <div class="course-actions">
+                <a href="{{ url_for('manageFees') }}" class="btn-grad">Manage Fees</a>
+                <a href="{{ url_for('addFee') }}" class="btn-grad">Add New Fee</a>
+            </div>
+        </div>
+
+        <div class="reports-section section-box">
+            <h3>Reports</h3>
+            <div class="course-actions">
+                <a href="{{ url_for('feeReport') }}" class="btn-grad">
+                    <i class="fas fa-file-invoice"></i> Fee Collection Report
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
