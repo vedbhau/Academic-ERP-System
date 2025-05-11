@@ -59,8 +59,23 @@ def addStudent():
     if "admin" not in session:
         return redirect(url_for("adminLogin"))
     
+    import os
+    import time
+    from werkzeug.utils import secure_filename
+
+    UPLOAD_FOLDER = 'static/uploads/profile_pictures'
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+    def allowed_file(filename):
+        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+    cursor = con.cursor(dictionary=True)
+    
     if request.method == "GET":
-        return render_template("admin/addStudent.html")
+        # Fetch courses from courses table
+        cursor.execute("SELECT cid, course_name FROM courses")
+        courses = cursor.fetchall()
+        return render_template("admin/addStudent.html", courses=courses)
     else:
         try:
             name = request.form["name"]
@@ -69,17 +84,25 @@ def addStudent():
             contact = request.form.get("contact", "")
             course = request.form.get("course", "")
 
-            cursor = con.cursor(dictionary=True)
-            
+            # Handle profile picture upload
+            profile_picture = None
+            if 'profile_picture' in request.files:
+                file = request.files['profile_picture']
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
+                    filename = f"{int(time.time())}_{filename}"
+                    file.save(os.path.join(UPLOAD_FOLDER, filename))
+                    profile_picture = f"uploads/profile_pictures/{filename}"
+
             # Check if email already exists
             cursor.execute("SELECT * FROM student WHERE email = %s", (email,))
             if cursor.fetchone():
                 flash("Email already registered")
                 return redirect(url_for("addStudent"))
 
-            # Insert new student
-            sql = "INSERT INTO student (name, email, password, contact, course) VALUES (%s, %s, %s, %s, %s)"
-            val = (name, email, password, contact, course)
+            # Insert new student with profile picture
+            sql = "INSERT INTO student (name, email, password, contact, course, profile_picture) VALUES (%s, %s, %s, %s, %s, %s)"
+            val = (name, email, password, contact, course, profile_picture)
             cursor.execute(sql, val)
             con.commit()
 
@@ -113,6 +136,16 @@ def editStudent(sid):
     if "admin" not in session:
         return redirect(url_for("adminLogin"))
     
+    import os
+    import time
+    from werkzeug.utils import secure_filename
+
+    UPLOAD_FOLDER = 'static/uploads/profile_pictures'
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+    def allowed_file(filename):
+        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
     cursor = con.cursor(dictionary=True)
     
     if request.method == "GET":
@@ -125,15 +158,28 @@ def editStudent(sid):
             email = request.form["email"]
             contact = request.form["contact"]
             course = request.form["course"]
-            
-            # Check if email is being changed to an existing one
-            cursor.execute("SELECT * FROM student WHERE email = %s AND sid != %s", (email, sid))
-            if cursor.fetchone():
-                flash("Email already registered")
-                return redirect(url_for("editStudent", sid=sid))
-            
-            sql = "UPDATE student SET name = %s, email = %s, contact = %s, course = %s WHERE sid = %s"
-            val = (name, email, contact, course, sid)
+
+            # Handle profile picture upload
+            if 'profile_picture' in request.files:
+                file = request.files['profile_picture']
+                if file and file.filename and allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
+                    filename = f"{int(time.time())}_{filename}"
+                    file.save(os.path.join(UPLOAD_FOLDER, filename))
+                    profile_picture = f"uploads/profile_pictures/{filename}"
+
+                    # Update profile with new picture
+                    sql = "UPDATE student SET name=%s, email=%s, contact=%s, course=%s, profile_picture=%s WHERE sid=%s"
+                    val = (name, email, contact, course, profile_picture, sid)
+                else:
+                    # Update profile without changing picture
+                    sql = "UPDATE student SET name=%s, email=%s, contact=%s, course=%s WHERE sid=%s"
+                    val = (name, email, contact, course, sid)
+            else:
+                # Update profile without changing picture
+                sql = "UPDATE student SET name=%s, email=%s, contact=%s, course=%s WHERE sid=%s"
+                val = (name, email, contact, course, sid)
+
             cursor.execute(sql, val)
             con.commit()
             
@@ -220,13 +266,17 @@ def manageFees():
 
     cursor = con.cursor(dictionary=True)
 
-    # Fetch all students with their fee details
+    # Set fixed total fees amount as 10000 and calculate pending fees accordingly
+    fixed_total_fees = 100000
+
     cursor.execute("""
-        SELECT s.sid, s.name, f.feeid, f.amount, f.status, f.due_date
+        SELECT s.sid, s.name, f.feeid, f.amount, f.status, f.due_date,
+               %s AS total_fees,
+               (%s - IFNULL(f.amount, 0)) AS pending_amount
         FROM student s
         LEFT JOIN fees f ON s.sid = f.sid
         ORDER BY s.name
-    """)
+    """, (fixed_total_fees, fixed_total_fees))
     fees = cursor.fetchall()
 
     return render_template("admin/manageFees.html", fees=fees)
@@ -376,3 +426,80 @@ def feeReport():
         print(f"Error fetching fee report: {str(e)}")
         flash("An error occurred while fetching the fee report", "error")
         return redirect(url_for("adminDashboard"))
+
+def manageTimetable():
+    if "admin" not in session:
+        return redirect(url_for("adminLogin"))
+
+    cursor = con.cursor(dictionary=True)
+
+    # Fetch all courses
+    cursor.execute("SELECT cid, course_name FROM courses")
+    courses = cursor.fetchall()
+
+    # Fetch all subjects
+    cursor.execute("SELECT subid, subject_name FROM subjects")
+    subjects = cursor.fetchall()
+
+    # Fetch all teachers
+    cursor.execute("SELECT tid, name FROM teacher")
+    teachers = cursor.fetchall()
+
+    # Fetch existing timetable entries with time formatted as string
+    cursor.execute("""
+        SELECT t.tid, c.course_name, t.day_of_week, 
+               TIME_FORMAT(t.time_start, '%H:%i') as time_start, 
+               TIME_FORMAT(t.time_end, '%H:%i') as time_end, 
+               s.subject_name, te.name as teacher_name
+        FROM timetable t
+        JOIN courses c ON t.course_id = c.cid
+        JOIN subjects s ON t.subid = s.subid
+        JOIN teacher te ON t.tid_teacher = te.tid
+        ORDER BY FIELD(t.day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), t.time_start
+    """)
+    timetable_entries = cursor.fetchall()
+
+    return render_template("admin/manageTimetable.html", courses=courses, subjects=subjects, teachers=teachers, timetable_entries=timetable_entries)
+
+
+
+def addTimetableEntry():
+    if "admin" not in session:
+        return redirect(url_for("adminLogin"))
+
+    if request.method == "POST":
+        course_id = request.form.get("course_id")
+        day_of_week = request.form.get("day_of_week")
+        time_start = request.form.get("time_start")
+        time_end = request.form.get("time_end")
+        subid = request.form.get("subid")
+        tid_teacher = request.form.get("tid_teacher")
+
+        cursor = con.cursor()
+        try:
+            sql = """
+                INSERT INTO timetable (course_id, day_of_week, time_start, time_end, subid, tid_teacher)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """
+            val = (course_id, day_of_week, time_start, time_end, subid, tid_teacher)
+            cursor.execute(sql, val)
+            con.commit()
+            flash("Timetable entry added successfully", "success")
+        except Exception as e:
+            flash(f"Error adding timetable entry: {str(e)}", "error")
+
+    return redirect(url_for("manageTimetable"))
+
+def deleteTimetableEntry(tid):
+    if "admin" not in session:
+        return redirect(url_for("adminLogin"))
+
+    cursor = con.cursor()
+    try:
+        cursor.execute("DELETE FROM timetable WHERE tid = %s", (tid,))
+        con.commit()
+        flash("Timetable entry deleted successfully", "success")
+    except Exception as e:
+        flash(f"Error deleting timetable entry: {str(e)}", "error")
+
+    return redirect(url_for("manageTimetable"))

@@ -1,181 +1,86 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Edit Profile</title>
+{% extends "user/base_student.html" %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        .profile-container {
+            max-width: 800px;
+            margin: 100px auto;
+            padding: 40px;
+            background: linear-gradient(to bottom right, #f6faff, #eef3fc);
+            border-radius: 20px;
+            box-shadow: 0 12px 28px rgba(36, 198, 220, 0.15);
+            border: 1px solid #dce7f3;
         }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-            color: #333;
+
+        h1 {
+            font-size: 28px;
+            color: #2e3c50;
+            margin-bottom: 30px;
         }
-        .edit-container {
-            max-width: 600px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            color: #1a73e8;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
+
         label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #666;
+            font-weight: bold;
+            color: #3a5a80;
         }
+
         input[type="text"],
         input[type="email"],
-        input[type="tel"] {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
         input[type="file"] {
             width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.9rem;
+            padding: 12px;
+            margin-top: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #c0c9d6;
+            border-radius: 8px;
+            box-sizing: border-box;
         }
-        .profile-preview {
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-        .profile-image {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #1a73e8;
-            margin-bottom: 1rem;
-        }
-        .profile-image.default {
-            background: #e9ecef;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            color: #6c757d;
-            margin: 0 auto;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-        .btn {
-            flex: 1;
-            padding: 0.8rem;
+
+        input[type="submit"] {
+            background: linear-gradient(to bottom, #dce3ec, #c0c9d6);
+            color: #1a1a1a;
+            padding: 12px 30px;
             border: none;
-            border-radius: 4px;
+            border-radius: 10px;
+            font-weight: bold;
             cursor: pointer;
-            font-size: 1rem;
-            text-align: center;
+            transition: background 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background: linear-gradient(to bottom, #cad8e6, #aab8c8);
+        }
+
+        .back-link {
+            color: #3a5a80;
             text-decoration: none;
-            transition: opacity 0.3s;
-        }
-        .btn-primary {
-            background-color: #1a73e8;
-            color: white;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-        .btn:hover {
-            opacity: 0.9;
-        }
-        .flash-message {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 1rem;
-            text-align: center;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
         }
     </style>
-</head>
-<body>
-    <div class="edit-container">
-        <h2>Edit Profile</h2>
-        
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="flash-message">
-                    {{ messages[0] }}
-                </div>
-            {% endif %}
-        {% endwith %}
 
+    <div class="profile-container">
+        <a href="{{ url_for('studentDashboard') }}" class="back-link">&larr; Back to Dashboard</a>
+        <h1>Edit Profile</h1>
         <form method="POST" enctype="multipart/form-data">
-            <div class="profile-preview">
-                {% if student.profile_picture %}
-                    <img src="{{ url_for('static', filename=student.profile_picture) }}" alt="Profile Picture" class="profile-image" id="imagePreview">
-                {% else %}
-                    <div class="profile-image default" id="defaultPreview">
-                        {{ student.name[0]|upper }}
-                    </div>
-                    <img src="#" alt="Profile Picture" class="profile-image" id="imagePreview" style="display: none;">
-                {% endif %}
-            </div>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="{{ student.name }}" required>
 
-            <div class="form-group">
-                <label for="profile_picture">Profile Picture</label>
-                <input type="file" id="profile_picture" name="profile_picture" accept="image/*" onchange="previewImage(this)">
-            </div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="{{ student.email }}" required>
 
-            <div class="form-group">
-                <label for="name">Full Name</label>
-                <input type="text" id="name" name="name" value="{{ student.name }}" required>
-            </div>
+            <label for="contact">Contact:</label>
+            <input type="text" id="contact" name="contact" value="{{ student.contact }}">
 
-            <div class="form-group">
-                <label for="contact">Contact Number</label>
-                <input type="tel" id="contact" name="contact" value="{{ student.contact }}">
-            </div>
+            <label for="course">Course:</label>
+            <input type="text" id="course" name="course" value="{{ student.course }}">
 
-            <div class="form-group">
-                <label for="course">Course</label>
-                <input type="text" id="course" name="course" value="{{ student.course }}">
-            </div>
+            <label for="profile_picture">Profile Picture:</label>
+            <input type="file" id="profile_picture" name="profile_picture">
 
-            <div class="action-buttons">
-                <button type="submit" class="btn btn-primary">Update Profile</button>
-                <a href="{{ url_for('studentDashboard') }}" class="btn btn-secondary">Cancel</a>
-            </div>
+            <input type="submit" value="Update Profile">
         </form>
     </div>
-
-    <script>
-        function previewImage(input) {
-            const preview = document.getElementById('imagePreview');
-            const defaultPreview = document.getElementById('defaultPreview');
-            
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                    if (defaultPreview) {
-                        defaultPreview.style.display = 'none';
-                    }
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-    </script>
-</body>
-</html>
+{% endblock %}

@@ -239,3 +239,45 @@ def viewFees():
     fees = cursor.fetchall()
 
     return render_template("user/viewFees.html", fees=fees)
+
+def viewTimetable():
+    if "student" not in session:
+        return redirect(url_for("studentLogin"))
+
+    cursor = con.cursor(dictionary=True)
+
+    # Get student's course
+    cursor.execute("SELECT course FROM student WHERE email = %s", (session["student"],))
+    student_course = cursor.fetchone()
+    if not student_course or not student_course["course"]:
+        flash("No course assigned to student", "error")
+        return redirect(url_for("studentDashboard"))
+
+    course_name = student_course["course"]
+
+    # Get course id
+    cursor.execute("SELECT cid FROM courses WHERE course_name = %s", (course_name,))
+    course = cursor.fetchone()
+    if not course:
+        flash("Course not found", "error")
+        return redirect(url_for("studentDashboard"))
+
+    course_id = course["cid"]
+
+    # Fetch timetable entries for the student's course with time formatted as string
+    cursor.execute("""
+        SELECT t.day_of_week, 
+               TIME_FORMAT(t.time_start, '%H:%i') as time_start, 
+               TIME_FORMAT(t.time_end, '%H:%i') as time_end, 
+               s.subject_name, 
+               te.name as teacher_name
+        FROM timetable t
+        JOIN subjects s ON t.subid = s.subid
+        JOIN teacher te ON t.tid_teacher = te.tid
+        WHERE t.course_id = %s
+        ORDER BY FIELD(t.day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), t.time_start
+    """, (course_id,))
+    timetable_entries = cursor.fetchall()
+
+    return render_template("user/studentTimetable.html", timetable_entries=timetable_entries)
+

@@ -1,4 +1,4 @@
--- Create database if not exists
+e-- Create database if not exists
 CREATE DATABASE IF NOT EXISTS college_erp;
 USE college_erp;
 
@@ -95,3 +95,17 @@ CREATE TABLE IF NOT EXISTS attendance (
     FOREIGN KEY (subid) REFERENCES subjects(subid),
     FOREIGN KEY (tid) REFERENCES teacher(tid)
 ); 
+-- Create timetable table
+CREATE TABLE IF NOT EXISTS timetable (
+    tid INT AUTO_INCREMENT PRIMARY KEY,
+    course_id INT NOT NULL,
+    day_of_week ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday') NOT NULL,
+    time_start TIME NOT NULL,
+    time_end TIME NOT NULL,
+    subid INT NOT NULL,
+    tid_teacher INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (course_id) REFERENCES courses(cid),
+    FOREIGN KEY (subid) REFERENCES subjects(subid),
+    FOREIGN KEY (tid_teacher) REFERENCES teacher(tid)
+);

@@ -1,29 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8" />
     <title>View Marks - College ERP System</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f8;
+            background: #f0f4f8;
             margin: 0;
-            padding: 0;
+            padding: 20px;
+            color: #333;
         }
         .header {
-            background-color: #1a73e8;
+            background-color: #3a5a80;
             color: white;
             padding: 1rem 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .header {
+            background-color: #3a5a80;
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .logo a {
+            color: white;
+            text-decoration: none;
+        }
+        nav a {
+            color: white;
+            margin-left: 1.5rem;
+            text-decoration: none;
         }
         .container {
             max-width: 1000px;
-            margin: 2rem auto;
+            margin: 0 auto;
             background: white;
             padding: 2rem;
             border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         h2 {
-            color: #1a73e8;
+            color: #3a5a80;
             margin-bottom: 1.5rem;
         }
         .form-filters {
@@ -41,6 +72,8 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
+            border-radius: 10px;
+            overflow: hidden;
         }
         th, td {
             padding: 0.75rem;
@@ -48,19 +81,23 @@
             border-bottom: 1px solid #ddd;
         }
         th {
-            background-color: #f0f4f8;
+            background-color: #3a5a80;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f7ff;
         }
         .btn {
             padding: 0.6rem 1.2rem;
             font-size: 1rem;
             border: none;
             border-radius: 4px;
-            background-color: #1a73e8;
+            background-color: #3a5a80;
             color: white;
             cursor: pointer;
         }
         .btn:hover {
-            background-color: #155ec0;
+            background-color: #2a3e56;
         }
         .flash-message {
             background-color: #ffebee;
@@ -73,9 +110,17 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>College ERP System</h1>
-    </div>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <a href="{{ url_for('teacherDashboard') }}">College ERP System</a>
+            </div>
+            <nav>
+                <a href="{{ url_for('teacherDashboard') }}">Dashboard</a>
+                <a href="{{ url_for('teacherLogout') }}">Logout</a>
+            </nav>
+        </div>
+    </header>
 
     <div class="container">
         <h2>View Marks</h2>
@@ -113,26 +158,26 @@
                     <th>Course</th>
                     <th>Assessment Type</th>
                     <th>Marks</th>
-                <th>Date Added</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% if records %}
-                {% for row in records %}
-                    <tr>
-                        <td>{{ row.student_name }}</td>
-                        <td>{{ row.course_name }}</td>
-                        <td>{{ row.assessment_type }}</td>
-                        <td>{{ row.marks }}</td>
-                        <td>{{ row.date_added }}</td>
-                    </tr>
-                {% endfor %}
-            {% else %}
-                <tr>
-                    <td colspan="4" style="text-align:center;">No marks found.</td>
+                    <th>Date Added</th>
                 </tr>
-            {% endif %}
-        </tbody>
+            </thead>
+            <tbody>
+                {% if records %}
+                    {% for row in records %}
+                        <tr>
+                            <td>{{ row.student_name }}</td>
+                            <td>{{ row.course_name }}</td>
+                            <td>{{ row.assessment_type }}</td>
+                            <td>{{ row.marks }}</td>
+                            <td>{{ row.date_added }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align:center;">No marks found.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
         </table>
     </div>
 </body>

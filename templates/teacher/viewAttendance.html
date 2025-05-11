@@ -3,21 +3,19 @@
 <head>
     <title>View Attendance - College ERP System</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
+            background: #f0f4f8;
+            margin: 0;
+            padding: 20px;
             color: #333;
         }
         .header {
-            background-color: #1a73e8;
+            background-color: #3a5a80;
             color: white;
             padding: 1rem 2rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
         .header-content {
             max-width: 1200px;
@@ -36,23 +34,21 @@
         }
         .container {
             max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-        .attendance-section {
+            margin: 0 auto;
             background: white;
             padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         .attendance-section h2 {
-            color: #1a73e8;
+            color: #3a5a80;
             margin-bottom: 1.5rem;
         }
         .filters {
             display: flex;
             gap: 1rem;
             margin-bottom: 1.5rem;
+            align-items: flex-end;
         }
         .filter-group {
             flex: 1;
@@ -62,7 +58,8 @@
             margin-bottom: 0.5rem;
             color: #666;
         }
-        .filter-group select {
+        .filter-group select,
+        .filter-group input[type="date"] {
             width: 100%;
             padding: 0.8rem;
             border: 1px solid #ddd;
@@ -73,6 +70,8 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
+            border-radius: 10px;
+            overflow: hidden;
         }
         th, td {
             padding: 1rem;
@@ -80,11 +79,11 @@
             border-bottom: 1px solid #ddd;
         }
         th {
-            background-color: #f8f9fa;
-            color: #1a73e8;
+            background-color: #3a5a80;
+            color: white;
         }
         tr:hover {
-            background-color: #f8f9fa;
+            background-color: #f1f7ff;
         }
         .status-present {
             color: #28a745;
@@ -103,7 +102,7 @@
             display: inline-block;
         }
         .btn-primary {
-            background-color: #1a73e8;
+            background-color: #3a5a80;
             color: white;
         }
         .btn-secondary {
@@ -117,9 +116,6 @@
             margin-top: 1.5rem;
             display: flex;
             gap: 1rem;
-        }
-        .filter-group button {
-            margin-top: 1.5rem;
         }
         .no-records {
             text-align: center;
@@ -151,7 +147,7 @@
                         <select id="course" name="course" required>
                             <option value="">All Courses</option>
                             {% for course in courses %}
-                                <option value="{{ course.cid }}" {% if request.args.get('course') == course.cid|string %}selected{% endif %}>{{ course.name }}</option>
+                                <option value="{{ course.cid }}" {% if request.args.get('course') == course.cid|string %}selected{% endif %}>{{ course.course_name }} ({{ course.branch }})</option>
                             {% endfor %}
                         </select>
                     </div>

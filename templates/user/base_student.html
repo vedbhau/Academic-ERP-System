@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
+    <title>{% block title %}Student Dashboard{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
@@ -121,7 +121,7 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
-        .dashboard-container {
+        .content-container {
             max-width: 1100px;
             margin: 120px auto 40px;
             padding: 40px;
@@ -131,61 +131,9 @@
             border: 1px solid #dce7f3;
         }
 
-        .section-box {
-            background: linear-gradient(to bottom right, #f1f8ff, #e0e9f7);
-            padding: 25px;
-            border-radius: 14px;
-            box-shadow: 0 6px 16px rgba(81, 74, 157, 0.05);
-            margin-bottom: 2rem;
-            border-left: 6px solid #348AC7;
-        }
-
-        .btn-grad {
-            background: linear-gradient(to bottom, #dce3ec, #c0c9d6);
-            margin: 10px;
-            padding: 12px 30px;
-            text-transform: uppercase;
-            color: #1a1a1a;
-            font-weight: bold;
-            border-radius: 10px;
-            text-decoration: none;
-            transition: 0.3s ease;
-            display: inline-block;
-        }
-
-        .btn-grad:hover {
-            background: linear-gradient(to bottom, #cad8e6, #aab8c8);
-            color: #000;
-        }
-
-        .btn-danger {
-            background-color: #ef4444;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .btn-danger:hover {
-            background-color: #dc2626;
-        }
-
-        .user-actions, .course-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
         @media (max-width: 768px) {
-            .dashboard-container {
+            .content-container {
                 padding: 20px;
-            }
-
-            .btn-grad, .btn-danger {
-                width: 100%;
-                text-align: center;
             }
 
             .toggle-wrapper {
@@ -198,12 +146,12 @@
 
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <a href="{{ url_for('addStudent') }}">Add Student</a>
-        <a href="{{ url_for('manageTeacherSubjects') }}">Manage Teachers</a>
-        <a href="{{ url_for('manageFees') }}">Manage Fees</a>
-        <a href="{{ url_for('addFee') }}">Add Fee</a>
-        <a href="{{ url_for('feeReport') }}">Fee Report</a>
-        <a href="{{ url_for('manageTimetable') }}">Manage Timetable</a>
+        <a href="{{ url_for('studentDashboard') }}">Dashboard</a>
+        <a href="{{ url_for('editStudentProfile') }}">Edit Profile</a>
+        <a href="{{ url_for('viewMarks') }}">View Marks</a>
+        <a href="{{ url_for('viewFees') }}">View Fees</a>
+        <a href="{{ url_for('studentViewAttendance') }}">View Attendance</a>
+        <a href="{{ url_for('viewTimetable') }}">View Timetable</a>
     </div>
 
     <!-- Navbar -->
@@ -214,7 +162,7 @@
         </div>
         <div class="navbar-right">
             <a href="{{ url_for('homepage') }}" class="nav-button">Home</a>
-            <a href="{{ url_for('adminLogout') }}" class="logout-button">Logout</a>
+            <a href="{{ url_for('studentLogout') }}" class="logout-button">Logout</a>
         </div>
     </header>
 
@@ -226,36 +174,9 @@
     </div>
 
     <!-- Main Content -->
-    <div class="dashboard-container">
-        <div class="section-box">
-            <h2>Welcome Admin  {{ admin.name }}</h2>
-            <!-- <p><strong>Email:</strong> {{ admin.email }}</p> -->
-        </div>
-
-        <div class="section-box">
-            <h3>User Management</h3>
-            <div class="user-actions">
-                <a href="{{ url_for('addStudent') }}" class="btn-grad">Add New Student</a>
-                <a href="{{ url_for('manageTeacherSubjects') }}" class="btn-grad">Manage Teachers</a>
-            </div>
-        </div>
-
-        <div class="section-box">
-            <h3>Fee Management</h3>
-            <div class="course-actions">
-                <a href="{{ url_for('manageFees') }}" class="btn-grad">Manage Fees</a>
-                <a href="{{ url_for('addFee') }}" class="btn-grad">Add New Fee</a>
-            </div>
-        </div>
-
-        <div class="section-box">
-            <h3>Reports</h3>
-            <div class="course-actions">
-                <a href="{{ url_for('feeReport') }}" class="btn-grad">
-                    <i class="fas fa-file-invoice"></i> Fee Collection Report
-                </a>
-            </div>
-        </div>
+    <div class="content-container">
+        {% block content %}
+        {% endblock %}
     </div>
 
     <!-- Sidebar Toggle Script -->
@@ -268,7 +189,7 @@
             sidebar.classList.toggle('show');
 
             if (sidebar.classList.contains('show')) {
-                icon.classList.remove('fa-bars');   //(☰, fa-bars) with cross (✖, fa-times
+                icon.classList.remove('fa-bars');
                 icon.classList.add('fa-times');
                 toggleWrapper.style.left = '250px';
             } else {

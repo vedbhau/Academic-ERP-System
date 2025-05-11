@@ -33,6 +33,10 @@ app.add_url_rule("/admin/update_fee_status/<int:feeid>", view_func=admin.updateF
 app.add_url_rule("/admin/delete_fee/<int:feeid>", view_func=admin.deleteFee, methods=["GET"])
 # Add this with other admin routes
 app.add_url_rule("/admin/fee-report", view_func=admin.feeReport, methods=["GET"], endpoint="feeReport")
+# New timetable management routes for admin
+app.add_url_rule('/admin/manageTimetable', 'manageTimetable', admin.manageTimetable)
+app.add_url_rule('/admin/addTimetableEntry', 'addTimetableEntry', admin.addTimetableEntry, methods=['POST'])
+app.add_url_rule('/admin/deleteTimetableEntry/<int:tid>', 'deleteTimetableEntry', admin.deleteTimetableEntry, methods=['POST'])
 
 # ... existing routes ...
 
@@ -46,6 +50,7 @@ app.add_url_rule("/editStudent", view_func=user.editStudentProfile, methods=["GE
 app.add_url_rule("/viewMarks", view_func=user.viewMarks)
 app.add_url_rule("/student/viewAttendance", view_func=user.viewAttendance)
 app.add_url_rule("/viewFees", view_func=user.viewFees, methods=["GET"])
+app.add_url_rule('/student/viewTimetable', 'viewTimetable', user.viewTimetable)
 
 
 
